@@ -1,6 +1,10 @@
 FROM ubuntu:23.10 AS builder
 
-RUN apt-get update -y && apt-get upgrade -y && apt-get install -y wget ca-certificates build-essential zlib1g-dev ffmpeg
+RUN rm -f /etc/apt/apt.conf.d/docker-clean
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update -y && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends wget ca-certificates build-essential zlib1g-dev ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
 
 ARG JAVA_VERSION=20
 ARG MUSL_VERSION=10.2.1
@@ -16,7 +20,6 @@ RUN mkdir /opt/graalvm-jdk-${JAVA_VERSION} && \
     tar -zxvf /tmp/zlib-${ZLIB_VERSION}.tar.gz -C /tmp
 
 ENV TOOLCHAIN_DIR=/opt/musl-${MUSL_VERSION}/x86_64-linux-musl-native
-
 ENV PATH=${TOOLCHAIN_DIR}/bin:${PATH}
 ENV CC=${TOOLCHAIN_DIR}/bin/gcc
 
@@ -30,14 +33,20 @@ RUN rm -rf /tmp/*
 
 WORKDIR /app
 
-COPY gradlew settings.gradle build.gradle ./
-COPY gradle/libs.versions.toml ./gradle/
+COPY gradlew ./
 COPY gradle/wrapper/* ./gradle/wrapper/
-RUN ./gradlew dependencies
+RUN ./gradlew --version --no-daemon
+
+COPY settings.gradle build.gradle ./
+COPY gradle/libs.versions.toml ./gradle/
+RUN --mount=type=cache,target=/home/gradle/.gradle/caches \
+    ./gradlew dependencies --no-daemon
 
 COPY . .
-RUN ./gradlew -Pagent test
-RUN ./gradlew nativeCompile
+RUN ./gradlew -Pagent test --no-daemon
+RUN ./gradlew metadataCopy --task test --dir src/main/resources/META-INF/native-image --no-daemon
+RUN ./gradlew nativeCompile --no-daemon
+RUN strip --strip-all build/native/nativeCompile/Stickerify
 
 FROM scratch AS bot
 COPY --from=mwader/static-ffmpeg:latest /ffmpeg /

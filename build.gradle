@@ -48,20 +48,9 @@ application {
 }
 
 graalvmNative {
-    agent {
-        defaultMode = 'standard'
-        enabled = true
-        metadataCopy {
-            inputTaskNames.add('test')
-            outputDirectories.add('src/main/resources/META-INF/native-image')
-            mergeWithExisting = true
-        }
-    }
-    binaries {
-        main {
-            buildArgs.addAll('--static', '--libc=musl')
-            jvmArgs.add('--enable-preview')
-        }
+    binaries.configureEach {
+        buildArgs.addAll('--static', '--libc=musl')
+        jvmArgs.add('--enable-preview')
     }
     metadataRepository {
         enabled = true
