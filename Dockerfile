@@ -1,18 +1,45 @@
-FROM gradle:8.1-jdk17 AS builder
-WORKDIR /app
-COPY settings.gradle build.gradle ./
-COPY gradle/libs.versions.toml ./gradle/
-RUN \
-  --mount=type=cache,target=/home/gradle/.gradle/caches \
-  gradle dependencies --no-daemon
-COPY . .
-RUN gradle shadowJar --no-daemon
+FROM ubuntu:23.10 AS builder
 
-FROM eclipse-temurin:20 AS bot
+RUN apt-get update -y && apt-get upgrade -y && apt-get install -y wget ca-certificates build-essential zlib1g-dev ffmpeg
+
+ARG JAVA_VERSION=20
+ARG MUSL_VERSION=10.2.1
+ARG ZLIB_VERSION=1.2.13
+
+RUN mkdir /opt/graalvm-jdk-${JAVA_VERSION} && \
+    wget https://download.oracle.com/graalvm/${JAVA_VERSION}/latest/graalvm-jdk-${JAVA_VERSION}_linux-x64_bin.tar.gz -P /tmp && \
+    tar zxvf /tmp/graalvm-jdk-${JAVA_VERSION}_linux-x64_bin.tar.gz -C /opt/graalvm-jdk-${JAVA_VERSION} --strip-components 1 && \
+    wget http://more.musl.cc/${MUSL_VERSION}/x86_64-linux-musl/x86_64-linux-musl-native.tgz -P /tmp && \
+    mkdir /opt/musl-${MUSL_VERSION} && \
+    tar -zxvf /tmp/x86_64-linux-musl-native.tgz -C /opt/musl-${MUSL_VERSION}/ && \
+    wget https://zlib.net/zlib-${ZLIB_VERSION}.tar.gz -P /tmp && \
+    tar -zxvf /tmp/zlib-${ZLIB_VERSION}.tar.gz -C /tmp
+
+ENV TOOLCHAIN_DIR=/opt/musl-${MUSL_VERSION}/x86_64-linux-musl-native
+
+ENV PATH=${TOOLCHAIN_DIR}/bin:${PATH}
+ENV CC=${TOOLCHAIN_DIR}/bin/gcc
+
+WORKDIR /tmp/zlib-${ZLIB_VERSION}
+RUN ./configure --prefix=${TOOLCHAIN_DIR} --static && make && make install
+
+ENV JAVA_HOME=/opt/graalvm-jdk-${JAVA_VERSION}
+ENV PATH=${JAVA_HOME}/bin:${PATH}
+
+RUN rm -rf /tmp/*
+
 WORKDIR /app
-RUN \
-  --mount=type=cache,target=/var/cache/apt \
-  apt-get -y update && apt-get -y upgrade && \
-  apt-get install -y --no-install-recommends ffmpeg
-COPY --from=builder /app/build/libs .
-CMD ["java", "--enable-preview", "-jar", "Stickerify-shadow.jar"]
+
+COPY gradlew settings.gradle build.gradle ./
+COPY gradle/libs.versions.toml ./gradle/
+COPY gradle/wrapper/* ./gradle/wrapper/
+RUN ./gradlew dependencies
+
+COPY . .
+RUN ./gradlew -Pagent test
+RUN ./gradlew nativeCompile
+
+FROM scratch AS bot
+COPY --from=mwader/static-ffmpeg:latest /ffmpeg /
+COPY --from=builder /app/build/native/nativeCompile/Stickerify /
+ENTRYPOINT ["/Stickerify", "-Djava.io.tmpdir=/"]
