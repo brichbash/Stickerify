@@ -50,7 +50,7 @@ application {
 graalvmNative {
     binaries.configureEach {
         buildArgs.addAll('--static', '--libc=musl')
-        jvmArgs.add('--enable-preview')
+        jvmArgs.addAll('--enable-preview', '-Djava.io.tmpdir=/')
     }
     metadataRepository {
         enabled = true
