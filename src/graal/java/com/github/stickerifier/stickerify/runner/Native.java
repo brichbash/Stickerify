@@ -1,10 +1,10 @@
 package com.github.stickerifier.stickerify.runner;
 
 import com.github.stickerifier.stickerify.bot.Stickerify;
-import com.github.stickerifier.stickerify.process.PathLocator;
+import com.github.stickerifier.stickerify.process.NativeLocator;
 
-public class Main {
+public class Native {
 	public static void main(String[] args) {
-		new Stickerify(PathLocator.INSTANCE);
+		new Stickerify(new NativeLocator());
 	}
 }

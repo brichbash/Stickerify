@@ -4,6 +4,10 @@ plugins {
     id 'java'
 }
 
+sourceSets {
+    graal
+}
+
 repositories {
     mavenCentral()
 }
@@ -20,6 +24,14 @@ dependencies {
     testImplementation libs.hamcrest
     testImplementation libs.junit
     testImplementation libs.mockwebserver
+
+    graalCompileOnly sourceSets.main.output
+    graalImplementation libs.jave
+    nativeImageCompileOnly sourceSets.graal.output.classesDirs
+}
+
+configurations {
+    nativeImageClasspath.extendsFrom(graalImplementation)
 }
 
 group = 'com.github.stickerifier'
@@ -48,9 +60,16 @@ application {
 }
 
 graalvmNative {
-    binaries.configureEach {
-        buildArgs.addAll('--static', '--libc=musl')
-        jvmArgs.addAll('--enable-preview', '-Djava.io.tmpdir=/')
+    toolchainDetection = false
+    agent {
+        enabled = true
+    }
+    binaries {
+        main {
+            buildArgs.addAll('--static', '--libc=musl')
+            jvmArgs.addAll('--enable-preview', '-Djava.io.tmpdir=/')
+            mainClass = 'com.github.stickerifier.stickerify.runner.Native'
+        }
     }
     metadataRepository {
         enabled = true

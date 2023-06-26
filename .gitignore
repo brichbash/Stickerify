@@ -4,6 +4,5 @@ buildNumber.properties
 .project
 .classpath
 .settings/
-.idea/
 src/main/resources/*.png
 .gradle/

@@ -6,9 +6,11 @@ RUN --mount=type=cache,target=/var/cache/yum \
 WORKDIR /app
 COPY . .
 # disabled for now https://github.com/graalvm/native-build-tools/issues/455
-# RUN ./gradlew -Pagent test --no-daemon
-# RUN ./gradlew metadataCopy --task test --dir src/main/resources/META-INF/native-image --no-daemon
-RUN ./gradlew nativeCompile --no-daemon
+RUN --mount=type=cache,target=/root/.gradle/wrapper \
+    --mount=type=cache,target=/root/.gradle/caches \
+#   ./gradlew -Pagent test && \
+#   ./gradlew metadataCopy --task test --dir src/main/resources/META-INF/native-image && \
+    ./gradlew nativeCompile
 
 FROM scratch AS bot
 COPY --from=builder /usr/local/bin/ffmpeg /

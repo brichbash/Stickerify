@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.stickerifier.stickerify.ResourceHelper;
+import com.github.stickerifier.stickerify.process.PathLocator;
 import com.github.stickerifier.stickerify.telegram.Answer;
 import com.pengrad.telegrambot.TelegramBot;
 import okhttp3.mockwebserver.MockWebServer;
@@ -52,7 +53,7 @@ public class StickerifyTest {
 				.updateListenerSleep(500)
 				.build();
 
-		new Stickerify(bot, Runnable::run);
+		new Stickerify(bot, Runnable::run, PathLocator.INSTANCE);
 	}
 
 	private static void assertResponseContainsMessage(RecordedRequest request, Answer answer) {
