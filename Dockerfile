@@ -5,9 +5,9 @@ RUN --mount=type=cache,target=/var/cache/yum \
 
 WORKDIR /app
 COPY . .
-# disabled for now https://github.com/graalvm/native-build-tools/issues/455
 RUN --mount=type=cache,target=/root/.gradle/wrapper \
     --mount=type=cache,target=/root/.gradle/caches \
+# disabled for now https://github.com/graalvm/native-build-tools/issues/455
 #   ./gradlew -Pagent test && \
 #   ./gradlew metadataCopy --task test --dir src/main/resources/META-INF/native-image && \
     ./gradlew nativeCompile
