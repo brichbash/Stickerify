@@ -1,19 +1,21 @@
 FROM ghcr.io/graalvm/native-image-community:20-muslib AS builder
 COPY --from=mwader/static-ffmpeg:latest /ffmpeg /usr/local/bin
 RUN --mount=type=cache,target=/var/cache/yum \
-    microdnf install -y findutils # import xargs for gradlew
+    microdnf install -y findutils which
 
 WORKDIR /app
 COPY . .
 RUN --mount=type=cache,target=/root/.gradle/wrapper \
-    --mount=type=cache,target=/root/.gradle/caches \
-# disabled for now https://github.com/graalvm/native-build-tools/issues/455
-#   ./gradlew -Pagent test && \
-#   ./gradlew metadataCopy --task test --dir src/main/resources/META-INF/native-image && \
-    ./gradlew nativeCompile
+    --mount=type=cache,target=/root/.gradle/caches/jars-9 \
+    --mount=type=cache,target=/root/.gradle/caches/modules-2 \
+    ./gradlew -Pagent test --no-daemon && \
+    ./gradlew metadataCopy --no-daemon && \
+    ./gradlew nativeCompile --no-daemon
 
-FROM scratch AS bot
+FROM gcr.io/distroless/static-debian11:latest AS bot
 COPY --from=builder /usr/local/bin/ffmpeg /
-COPY --from=builder /app/build/native/nativeCompile/Stickerify /
+COPY --from=builder /usr/lib64/graalvm/graalvm-community-java20/lib/libawt.so /
+COPY --from=builder /usr/lib64/graalvm/graalvm-community-java20/lib/libawt_headless.so /
+COPY --from=builder /app/build/native/nativeCompile/stickerify /
 
-ENTRYPOINT ["/Stickerify"]
+ENTRYPOINT ["/stickerify"]

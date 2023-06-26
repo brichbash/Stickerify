@@ -1,0 +1,6 @@
+[
+    {
+        "name": "com.pengrad.telegrambot.response.SendResponse",
+        "unsafeAllocated": true
+    }
+]

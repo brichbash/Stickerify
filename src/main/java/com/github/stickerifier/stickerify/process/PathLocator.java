@@ -13,10 +13,11 @@ import ws.schild.jave.process.ProcessLocator;
 public class PathLocator implements ProcessLocator {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PathLocator.class);
-	public static final PathLocator INSTANCE = new PathLocator();
 
 	private static final boolean IS_WINDOWS = System.getProperty("os.name").contains("Windows");
 	private static final String[] FIND_FFMPEG = { IS_WINDOWS ? "where" : "which", "ffmpeg" };
+
+	public static final PathLocator INSTANCE = new PathLocator();
 
 	private String ffmpegLocation;
 

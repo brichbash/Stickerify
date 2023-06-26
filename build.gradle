@@ -63,11 +63,17 @@ graalvmNative {
     toolchainDetection = false
     agent {
         enabled = true
+        metadataCopy {
+            inputTaskNames.add("test")
+            outputDirectories.add("src/main/resources/META-INF/native-image")
+            mergeWithExisting = true
+        }
     }
     binaries {
         main {
-            buildArgs.addAll('--static', '--libc=musl')
-            jvmArgs.addAll('--enable-preview', '-Djava.io.tmpdir=/')
+            buildArgs.addAll('--static', '--libc=musl', '--enable-url-protocols=https')
+            jvmArgs.addAll('--enable-preview', '-Djava.io.tmpdir=/', '-Djava.library.path=/')
+            imageName = 'stickerify'
             mainClass = 'com.github.stickerifier.stickerify.runner.Native'
         }
     }
