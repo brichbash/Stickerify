@@ -4,10 +4,6 @@ plugins {
     id 'java'
 }
 
-sourceSets {
-    graal
-}
-
 repositories {
     mavenCentral()
 }
@@ -24,14 +20,6 @@ dependencies {
     testImplementation libs.hamcrest
     testImplementation libs.junit
     testImplementation libs.mockwebserver
-
-    graalCompileOnly sourceSets.main.output
-    graalImplementation libs.jave
-    nativeImageCompileOnly sourceSets.graal.output.classesDirs
-}
-
-configurations {
-    nativeImageClasspath.extendsFrom(graalImplementation)
 }
 
 group = 'com.github.stickerifier'
@@ -62,20 +50,15 @@ application {
 graalvmNative {
     toolchainDetection = false
     agent {
-        enabled = true
         metadataCopy {
             inputTaskNames.add("test")
             outputDirectories.add("src/main/resources/META-INF/native-image")
             mergeWithExisting = true
         }
     }
-    binaries {
-        main {
-            buildArgs.addAll('--static', '--libc=musl', '--enable-url-protocols=https')
-            jvmArgs.addAll('--enable-preview', '-Djava.io.tmpdir=/', '-Djava.library.path=/', '-Djava.awt.headless=true')
-            imageName = 'stickerify'
-            mainClass = 'com.github.stickerifier.stickerify.runner.Native'
-        }
+    binaries.configureEach {
+        buildArgs.addAll('--no-fallback', '--static', '--libc=musl', '--enable-url-protocols=https')
+        jvmArgs.addAll('--enable-preview', '-Djava.io.tmpdir=/', '-Djava.awt.headless=true')
     }
     metadataRepository {
         enabled = true

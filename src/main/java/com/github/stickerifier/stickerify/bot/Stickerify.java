@@ -24,7 +24,6 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ws.schild.jave.process.ProcessLocator;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,17 +46,15 @@ public class Stickerify {
 
 	private final TelegramBot bot;
 	private final Executor executor;
-	private final MediaHelper mediaHelper;
 
 	/**
 	 * @see Stickerify
 	 */
-	public Stickerify(ProcessLocator processLocator) {
-		this(new TelegramBot.Builder(BOT_TOKEN).updateListenerSleep(500).build(), Executors.newVirtualThreadPerTaskExecutor(), processLocator);
+	public Stickerify() {
+		this(new TelegramBot.Builder(BOT_TOKEN).updateListenerSleep(500).build(), Executors.newVirtualThreadPerTaskExecutor());
 	}
 
-	Stickerify(TelegramBot bot, Executor executor, ProcessLocator processLocator) {
-		this.mediaHelper = new MediaHelper(processLocator);
+	Stickerify(TelegramBot bot, Executor executor) {
 		this.bot = bot;
 		this.executor = executor;
 
@@ -108,7 +105,7 @@ public class Stickerify {
 			var originalFile = retrieveFile(fileId);
 			pathsToDelete.add(originalFile.toPath());
 
-			var outputFile = mediaHelper.convert(originalFile);
+			var outputFile = MediaHelper.convert(originalFile);
 
 			if (outputFile == null) {
 				answerText(FILE_ALREADY_VALID, request);

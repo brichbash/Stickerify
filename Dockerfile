@@ -14,8 +14,7 @@ RUN --mount=type=cache,target=/root/.gradle/wrapper \
 
 FROM gcr.io/distroless/static-debian11:latest AS bot
 COPY --from=builder /usr/local/bin/ffmpeg /
-COPY --from=builder /usr/lib64/graalvm/graalvm-community-java20/lib/libawt.so /
-COPY --from=builder /usr/lib64/graalvm/graalvm-community-java20/lib/libawt_headless.so /
-COPY --from=builder /app/build/native/nativeCompile/stickerify /
+COPY --from=builder /app/build/native/nativeCompile/Stickerify /
+COPY --from=builder /app/build/native/nativeCompile/*.so /lib/
 
-ENTRYPOINT ["/stickerify"]
+ENTRYPOINT ["/Stickerify"]

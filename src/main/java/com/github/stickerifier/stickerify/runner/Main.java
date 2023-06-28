@@ -5,6 +5,6 @@ import com.github.stickerifier.stickerify.process.PathLocator;
 
 public class Main {
 	public static void main(String[] args) {
-		new Stickerify(PathLocator.INSTANCE);
+		new Stickerify();
 	}
 }
