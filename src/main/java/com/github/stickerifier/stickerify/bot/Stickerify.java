@@ -8,6 +8,7 @@ import static com.pengrad.telegrambot.model.request.ParseMode.MarkdownV2;
 import static java.util.HashSet.newHashSet;
 
 import com.github.stickerifier.stickerify.media.MediaHelper;
+import com.github.stickerifier.stickerify.media.generator.ImageGenerator;
 import com.github.stickerifier.stickerify.telegram.Answer;
 import com.github.stickerifier.stickerify.telegram.exception.TelegramApiException;
 import com.github.stickerifier.stickerify.telegram.model.TelegramFile;
@@ -81,6 +82,18 @@ public class Stickerify {
 
 		if (file != null) {
 			answerFile(request, file);
+		} else if (request.generateSticker()) {
+			/*
+			https://www.baeldung.com/guide-to-okhttp
+
+			get prompt
+			call API
+			retrieve get endpoint to find the image
+			call second API to find download link
+			download image
+			convert image
+			 */
+			var generatedFile = new ImageGenerator().generateImage(request.getAiPrompt());
 		} else {
 			answerText(request);
 		}

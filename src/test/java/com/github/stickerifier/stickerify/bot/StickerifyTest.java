@@ -24,7 +24,7 @@ public class StickerifyTest {
 
 	private ResourceHelper resources;
 
-	public final MockWebServer server = new MockWebServer();
+	private final MockWebServer server = new MockWebServer();
 
 	@BeforeEach
 	void setup() {

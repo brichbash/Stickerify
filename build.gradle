@@ -14,12 +14,12 @@ dependencies {
     implementation libs.imgscalr
     implementation libs.jave
     implementation libs.bundles.logback
+    implementation libs.bundles.okhttp3
     implementation libs.telegram.bot.api
     implementation libs.tika
 
     testImplementation libs.hamcrest
     testImplementation libs.junit
-    testImplementation libs.mockwebserver
 }
 
 group = 'com.github.stickerifier'

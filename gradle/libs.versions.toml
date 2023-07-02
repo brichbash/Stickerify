@@ -1,5 +1,6 @@
 [versions]
 logback = "1.4.8"
+okhttp3 = "4.11.0"
 
 [libraries]
 gson = "com.google.code.gson:gson:2.10.1"
@@ -10,13 +11,15 @@ jave = "ws.schild:jave-core:3.3.1"
 junit = "org.junit.jupiter:junit-jupiter:5.9.3"
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-mockwebserver = "com.squareup.okhttp3:mockwebserver:4.11.0"
+mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttp3"}
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp3"}
 slf4j-api = "org.slf4j:slf4j-api:2.0.7"
 telegram-bot-api = "com.github.pengrad:java-telegram-bot-api:6.7.0"
 tika = "org.apache.tika:tika-core:2.8.0"
 
 [bundles]
 logback = ["logback-core", "logback-classic", "slf4j-api"]
+okhttp3 = ["mockwebserver", "okhttp"]
 
 [plugins]
 shadow = "com.github.johnrengelman.shadow:8.1.1"

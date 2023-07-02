@@ -27,6 +27,7 @@ public record TelegramRequest(Message message) {
 	public static final String NEW_USER = " (new user)";
 	private static final String START_COMMAND = "/start";
 	private static final String HELP_COMMAND = "/help";
+	private static final String GENERATE_COMMAND = "/generate ";
 
 	public TelegramFile getFile() {
 		return Stream.of(message.photo(), message.document(), message.sticker(),
@@ -83,6 +84,15 @@ public record TelegramRequest(Message message) {
 
 	private boolean isHelpCommand() {
 		return HELP_COMMAND.equalsIgnoreCase(message.text());
+	}
+
+	public boolean generateSticker() {
+		return message.text().startsWith(GENERATE_COMMAND);
+	}
+
+	public String getAiPrompt() {
+		var textMessage = message.text();
+		return textMessage.substring(textMessage.indexOf(GENERATE_COMMAND));
 	}
 
 	@Override
